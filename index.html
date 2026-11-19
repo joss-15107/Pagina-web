@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tutorial: Desarrollo Móvil</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-canvas: #f3f4f6;
+      --bg-window: #ffffff;
+      --bg-subtle: #f8fafc;
+      --border-color: #cbd5e1;
+      --border-strong: #94a3b8;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --accent: #2563eb;
+      --accent-soft: #eff6ff;
+      --note-bg: #fefce8;
+      --note-border: #fde047;
+      --shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+      --radius: 10px;
+    }
+
+    body.dark {
+      --bg-canvas: #0f172a;
+      --bg-window: #1e293b;
+      --bg-subtle: #0f172a;
+      --border-color: #334155;
+      --border-strong: #475569;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent: #60a5fa;
+      --accent-soft: rgba(96, 165, 250, 0.14);
+      --note-bg: rgba(234, 179, 8, 0.12);
+      --note-border: rgba(234, 179, 8, 0.35);
+      --shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-canvas);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 16px;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    /* MARCO GENERAL FIEL AL BOCETO */
+    .wireframe-wrapper {
+      max-width: 1280px;
+      margin: 0 auto;
+      background-color: var(--bg-window);
+      border: 2px solid var(--border-strong);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* 1. ENCABEZADO (Óvalo izquierda | Título centro | Cuadro derecha) */
+    .sketch-header {
+      display: grid;
+      grid-template-columns: 76px 1fr 96px;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 18px;
+      background-color: var(--bg-subtle);
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius);
+    }
+
+    .header-oval {
+      width: 52px;
+      height: 58px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      background-color: var(--accent-soft);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 0.5px;
+      user-select: none;
+    }
+
+    .header-title-area {
+      text-align: center;
+    }
+
+    .header-title-area h1 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+    }
+
+    .header-title-area p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .header-square-box {
+      width: 72px;
+      height: 58px;
+      justify-self: end;
+      border: 1.5px solid var(--border-strong);
+      border-radius: 8px;
+      background-color: var(--bg-window);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 4px;
+    }
+
+    .theme-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      cursor: pointer;
+      font-size: 1.05rem;
+      line-height: 1;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .theme-btn:hover {
+      background-color: var(--accent-soft);
+    }
+
+    .step-badge {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    /* 2. CUERPO PRINCIPAL (Columna izquierda + Centro + Pie abajo | Columna derecha larga hasta abajo) */
+    .sketch-body {
+      display: grid;
+      grid-template-columns: 215px 1fr 250px;
+      grid-template-rows: 1fr auto;
+      grid-template-areas:
+        "left-win center-win right-win"
+        "footer-win footer-win right-win";
+      gap: 16px;
+      min-height: 620px;
+    }
+
+    .window-box {
+      background-color: var(--bg-window);
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    .window-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* VENTANA IZQUIERDA (ÍNDICE ESTRECHO) */
+    .left-window {
+      grid-area: left-win;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .nav-item-btn {
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      padding: 8px 10px;
+      font-size: 0.84rem;
+      font-weight: 500;
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      transition: all 0.15s ease;
+    }
+
+    .nav-item-btn:hover {
+      background-color: var(--bg-subtle);
+      border-color: var(--border-color);
+    }
+
+    .nav-item-btn.active {
+      background-color: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .nav-num {
+      font-size: 0.75rem;
+      font-weight: 700;
+      opacity: 0.85;
+      min-width: 16px;
+    }
+
+    /* VENTANA CENTRAL (CONTENIDO PRINCIPAL) */
+    .center-window {
+      grid-area: center-win;
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .topic-header {
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .topic-tag {
+      display: inline-block;
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--accent);
+      background-color: var(--accent-soft);
+      padding: 3px 9px;
+      border-radius: 99px;
+      margin-bottom: 6px;
+    }
+
+    .topic-header h2 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .topic-content h3 {
+      font-size: 1.02rem;
+      font-weight: 600;
+      margin-top: 18px;
+      margin-bottom: 6px;
+      color: var(--text-main);
+    }
+
+    .topic-content p {
+      font-size: 0.93rem;
+      margin-bottom: 10px;
+      color: var(--text-main);
+    }
+
+    .topic-content ul {
+      margin: 6px 0 12px 20px;
+      font-size: 0.92rem;
+    }
+
+    .topic-content li {
+      margin-bottom: 5px;
+    }
+
+    .simple-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 0.85rem;
+    }
+
+    .simple-table th,
+    .simple-table td {
+      border: 1px solid var(--border-color);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .simple-table th {
+      background-color: var(--bg-subtle);
+      font-weight: 600;
+    }
+
+    .code-snippet {
+      background-color: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      border-radius: 7px;
+      padding: 10px 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.82rem;
+      overflow-x: auto;
+      margin: 10px 0;
+      color: var(--text-main);
+      white-space: pre;
+    }
+
+    .topic-nav-controls {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 24px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .btn-nav {
+      background-color: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 7px 14px;
+      border-radius: 7px;
+      font-size: 0.84rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .btn-nav:hover:not(:disabled) {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-nav:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    /* VENTANA DERECHA (NOTAS PEQUEÑAS INTERESANTES - ALARGADA HASTA ABAJO) */
+    .right-window {
+      grid-area: right-win;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .note-card {
+      background-color: var(--note-bg);
+      border: 1px solid var(--note-border);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 0.84rem;
+    }
+
+    .note-card h4 {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .summary-box {
+      background-color: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 0.83rem;
+    }
+
+    .summary-box h4 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .summary-box ul {
+      margin-left: 16px;
+    }
+
+    .summary-box li {
+      margin-bottom: 4px;
+    }
+
+    .mini-quiz {
+      margin-top: auto;
+      background-color: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 0.82rem;
+    }
+
+    .mini-quiz h4 {
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--accent);
+    }
+
+    .quiz-opt {
+      display: block;
+      width: 100%;
+      text-align: left;
+      margin-top: 5px;
+      padding: 6px 8px;
+      font-size: 0.79rem;
+      background: var(--bg-window);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    .quiz-opt:hover {
+      border-color: var(--accent);
+    }
+
+    .quiz-opt.correct {
+      background-color: #dcfce7;
+      border-color: #22c55e;
+      color: #14532d;
+      font-weight: 600;
+    }
+
+    .quiz-opt.wrong {
+      background-color: #fee2e2;
+      border-color: #ef4444;
+      color: #7f1d1d;
+    }
+
+    /* 3. PIE DE PÁGINA (Debajo de columna izquierda y ventana central) */
+    .sketch-footer {
+      grid-area: footer-win;
+      background-color: var(--bg-subtle);
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 12px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* RESPONSIVO PARA TABLET Y MÓVIL */
+    @media (max-width: 960px) {
+      .sketch-body {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        grid-template-areas:
+          "left-win"
+          "center-win"
+          "right-win"
+          "footer-win";
+      }
+
+      .nav-list {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+
+      .nav-item-btn {
+        width: auto;
+        flex: 1 1 auto;
+      }
+    }
+
+    @media (max-width: 540px) {
+      .sketch-header {
+        grid-template-columns: 54px 1fr 64px;
+        padding: 10px;
+      }
+      .header-title-area h1 {
+        font-size: 1.05rem;
+      }
+      .center-window {
+        padding: 16px;
+      }
+      .sketch-footer {
+        flex-direction: column;
+        gap: 4px;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wireframe-wrapper">
+    <!-- ENCABEZADO SUPERIOR -->
+    <header class="sketch-header">
+      <div class="header-oval" title="Logotipo del Tutorial">DEV</div>
+      <div class="header-title-area">
+        <h1>Tutorial de Desarrollo Móvil</h1>
+        <p>Guía interactiva de fundamentos, arquitectura y herramientas</p>
+      </div>
+      <div class="header-square-box" title="Controles">
+        <button class="theme-btn" id="themeToggle" aria-label="Cambiar tema">🌓</button>
+        <span class="step-badge" id="headerStep">1 / 7</span>
+      </div>
+    </header>
+
+    <!-- CUERPO DE 3 VENTANAS + PIE DE PÁGINA -->
+    <div class="sketch-body">
+      
+      <!-- VENTANA IZQUIERDA: ÍNDICE -->
+      <aside class="window-box left-window" aria-label="Índice de temas">
+        <div class="window-label">
+          <span>Índice</span>
+          <span>7 Temas</span>
+        </div>
+        <ul class="nav-list" id="navList"></ul>
+      </aside>
+
+      <!-- VENTANA CENTRAL: INFORMACIÓN PRINCIPAL -->
+      <main class="window-box center-window" id="centerContent">
+        <div id="topicContainer"></div>
+
+        <div class="topic-nav-controls">
+          <button class="btn-nav" id="prevBtn">← Anterior</button>
+          <button class="btn-nav" id="nextBtn">Siguiente →</button>
+        </div>
+      </main>
+
+      <!-- VENTANA DERECHA: NOTAS PEQUEÑAS INTERESANTES -->
+      <aside class="window-box right-window" aria-label="Notas y datos curiosos">
+        <div class="window-label">
+          <span>Notas &amp; Datos</span>
+          <span>💡</span>
+        </div>
+
+        <div class="note-card" id="funFactBox"></div>
+
+        <div class="summary-box" id="keyPointsBox"></div>
+
+        <div class="mini-quiz" id="miniQuizBox"></div>
+      </aside>
+
+      <!-- PIE DE PÁGINA (ALINEADO BAJO IZQUIERDA Y CENTRO) -->
+      <footer class="sketch-footer">
+        <span><strong>Pie de página</strong> — Actividad 12112026 · Desarrollo de Aplicaciones Móviles</span>
+        <span>HTML5 · CSS3 · JavaScript</span>
+      </footer>
+
+    </div>
+  </div>
+
+  <script>
+    const topics = [
+      {
+        num: "01",
+        shortTitle: "Control de versiones",
+        title: "Control de versiones",
+        tag: "Tema 1 · Gestión de código",
+        html: `
+          <h3>Definición</h3>
+          <p>Un <strong>Sistema de Control de Versiones (VCS)</strong> es una herramienta que registra los cambios realizados sobre un conjunto de archivos a lo largo del tiempo, permitiendo recuperar versiones específicas, auditar quién modificó cada línea y trabajar en equipo sin sobrescribir el código.</p>
+
+          <h3>Tipos de sistemas (¿Cuáles son?)</h3>
+          <table class="simple-table">
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th>Funcionamiento</th>
+                <th>Ventajas</th>
+                <th>Desventajas</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Locales</strong><br>(ej. RCS)</td>
+                <td>Guardan parches de diferencias en una base de datos dentro del disco local.</td>
+                <td>Simple, rápido y no requiere conexión a red.</td>
+                <td>Si el disco falla se pierde todo; no permite colaborar en equipo.</td>
+              </tr>
+              <tr>
+                <td><strong>Centralizados (CVCS)</strong><br>(ej. SVN, Perforce)</td>
+                <td>Un único servidor guarda todo el historial y los clientes descargan archivos puntuales.</td>
+                <td>Control administrativo centralizado y visibilidad del trabajo del equipo.</td>
+                <td>Punto único de fallo: si el servidor cae, nadie puede guardar cambios.</td>
+              </tr>
+              <tr>
+                <td><strong>Distribuidos (DVCS)</strong><br>(ej. Git, Mercurial)</td>
+                <td>Cada desarrollador clona el repositorio completo con todo su historial local.</td>
+                <td>Trabajo offline completo, ramas rápidas y respaldo natural en cada copia.</td>
+                <td>Curva de aprendizaje inicial mayor en flujos avanzados.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Funcionamiento y rastreo de cambios</h3>
+          <p>Git trabaja mediante <strong>instantáneas (snapshots)</strong> y tres estados principales: <em>Working Directory</em> (archivos modificados), <em>Staging Area</em> (preparación con <code>git add</code>) y <em>Repository</em> (historial permanente con <code>git commit</code>).</p>
+          <div class="code-snippet">git init
+git checkout -b feature/login
+git add LoginActivity.kt
+git commit -m "feat: valida credenciales de acceso"
+git merge feature/login</div>
+        `,
+        noteTitle: "💡 ¿Sabías que...?",
+        noteText: "Git fue creado en 2005 por Linus Torvalds en apenas dos semanas para gestionar el desarrollo del kernel de Linux tras perder acceso a BitKeeper.",
+        keyPoints: [
+          "Cada commit genera un hash SHA-1 único e inmutable.",
+          "Las ramas (branches) permiten aislar nuevas funciones sin romper la app principal.",
+          "GitHub y GitLab añaden Pull Requests y revisión de código."
+        ],
+        quiz: {
+          q: "¿Qué ventaja clave tienen los sistemas distribuidos (Git) frente a los centralizados?",
+          options: [
+            "Cada desarrollador tiene una copia completa del historial y trabaja offline.",
+            "No necesitan crear commits para guardar cambios."
+          ],
+          answer: 0
+        }
+      },
+      {
+        num: "02",
+        shortTitle: "Persistencia y datos",
+        title: "Persistencia y acceso a datos",
+        tag: "Tema 2 · Almacenamiento móvil",
+        html: `
+          <h3>Definición y características</h3>
+          <p>La <strong>persistencia de datos</strong> es la capacidad de una app móvil para conservar información de forma no volátil incluso después de cerrarse o reiniciar el dispositivo. Debe garantizar <em>integridad, eficiencia energética, bajo consumo de memoria y cifrado</em>.</p>
+
+          <h3>Formas de persistencia y tipos de datos</h3>
+          <ul>
+            <li><strong>Archivos y Clave-Valor (SharedPreferences / DataStore / UserDefaults):</strong> Ideales para configuraciones, tokens de sesión, JSON pequeños o archivos multimedia descargados.</li>
+            <li><strong>Bases de datos locales (SQLite / Realm):</strong> Almacenan datos estructurados y relacionales (catálogos offline, historial de pedidos, mensajes) permitiendo consultas SQL rápidas.</li>
+            <li><strong>Bases de datos remotas vía Servicios Web (REST / GraphQL):</strong> Sincronizan información multiusuario en la nube mediante peticiones HTTP y respuestas en formato JSON.</li>
+          </ul>
+
+          <h3>Mecanismos de control de acceso</h3>
+          <ul>
+            <li><strong>Biblioteca de clases nativas:</strong> APIs del sistema como <code>java.io</code>, <code>FileManager</code> o <code>DataStore</code> para lectura y escritura directa.</li>
+            <li><strong>Clases de SQLite:</strong> Uso de <code>SQLiteOpenHelper</code> y cursores para ejecutar sentencias SQL manualmente.</li>
+            <li><strong>Mapeo Relacional de Objetos (ORM):</strong> Herramientas como <strong>Room</strong> (Android) o <strong>Core Data / SwiftData</strong> (iOS) que convierten tablas en objetos nativos y validan consultas en compilación.</li>
+          </ul>
+
+          <h3>Autenticación y consumo de servicios web</h3>
+          <p>El cliente móvil envía credenciales al servidor, recibe un token <strong>JWT (JSON Web Token)</strong> o <strong>OAuth 2.0</strong>, lo guarda en almacenamiento cifrado (<em>EncryptedSharedPreferences / Keychain</em>) y lo adjunta en cada petición:</p>
+          <div class="code-snippet">GET /api/v1/perfil HTTP/1.1
+Host: api.ejemplo.com
+Authorization: Bearer eyJhbGciOiJIUzI1NiIs...</div>
+        `,
+        noteTitle: "🔐 Nota de seguridad",
+        noteText: "Nunca guardes contraseñas o tokens JWT en texto plano dentro de SharedPreferences normales; usa Keystore en Android o Keychain en iOS.",
+        keyPoints: [
+          "ORM como Room reduce errores de sintaxis SQL en tiempo de compilación.",
+          "El enfoque Offline-First guarda primero en SQLite y sincroniza luego con la API.",
+          "JSON es el estándar ligero para intercambiar datos con servicios REST."
+        ],
+        quiz: {
+          q: "¿Qué tecnología transforma tablas de SQLite en objetos nativos del lenguaje?",
+          options: [
+            "Un ORM (como Room o Core Data)",
+            "Un archivo de texto plano CSV"
+          ],
+          answer: 0
+        }
+      },
+      {
+        num: "03",
+        shortTitle: "Gestión de sensores",
+        title: "Gestión de sensores en dispositivos móviles",
+        tag: "Tema 3 · Hardware y contexto",
+        html: `
+          <h3>Definición</h3>
+          <p>Un <strong>sensor móvil</strong> es un componente de hardware capaz de detectar magnitudes físicas o ambientales (movimiento, orientación, luz, ubicación) y traducirlas en señales digitales que el sistema operativo entrega a las aplicaciones.</p>
+
+          <h3>Tipos de sensores</h3>
+          <ul>
+            <li><strong>De movimiento:</strong> Acelerómetro (aceleración lineal en ejes X, Y, Z), giroscopio (velocidad angular de rotación) y podómetro.</li>
+            <li><strong>De posición y navegación:</strong> Magnetómetro (brújula digital), sensor de proximidad (apaga pantalla en llamadas) y receptor GNSS/GPS.</li>
+            <li><strong>Ambientales y biométricos:</strong> Sensor de luz ambiental (brillo automático), barómetro (altitud), lector de huella y reconocimiento facial.</li>
+          </ul>
+
+          <h3>Proceso de gestión (Habilitación, Obtención y Procesamiento)</h3>
+          <ol style="margin: 8px 0 12px 20px; font-size: 0.92rem;">
+            <li><strong>Habilitación:</strong> Obtener el gestor del sistema (<code>SensorManager</code> o <code>CMMotionManager</code>), verificar si el sensor existe y registrar un <em>listener</em> con una frecuencia de muestreo adecuada.</li>
+            <li><strong>Obtención:</strong> Recibir los eventos periódicos con arreglos de valores numéricos y marca de tiempo (timestamp).</li>
+            <li><strong>Procesamiento:</strong> Aplicar filtros (como paso bajo para eliminar ruido o vibraciones) y liberar el sensor en <code>onPause()</code> para ahorrar batería.</li>
+          </ol>
+          <div class="code-snippet">// Ejemplo conceptual en Android (Kotlin)
+sensorManager.registerListener(this, acelerometro, SensorManager.SENSOR_DELAY_UI)
+// Importante: liberar al salir de la pantalla
+override fun onPause() { super.onPause(); sensorManager.unregisterListener(this) }</div>
+        `,
+        noteTitle: "🔋 Cuidado con la batería",
+        noteText: "Dejar un sensor activo en alta frecuencia (SENSOR_DELAY_GAME) cuando la app pasa a segundo plano es una de las principales causas de drenaje de batería.",
+        keyPoints: [
+          "Siempre verifica si el dispositivo cuenta con el sensor antes de usarlo.",
+          "Los sensores virtuales fusionan datos de acelerómetro + giroscopio.",
+          "Libera el listener en onPause() o viewWillDisappear()."
+        ],
+        quiz: {
+          q: "¿Cuál es el paso obligatorio al cerrar una pantalla que usa sensores?",
+          options: [
+            "Desregistrar (liberar) el listener del sensor para ahorrar batería.",
+            "Aumentar la frecuencia de muestreo al máximo."
+          ],
+          answer: 0
+        }
+      },
+      {
+        num: "04",
+        shortTitle: "Recursos multimedia",
+        title: "Uso de recursos multimedia",
+        tag: "Tema 4 · Gráficos, audio y video",
+        html: `
+          <h3>Definición</h3>
+          <p>Los <strong>recursos multimedia</strong> comprenden todos los activos visuales, sonoros e interactivos integrados en una aplicación móvil para enriquecer la interfaz de usuario y comunicar información de manera atractiva.</p>
+
+          <h3>Tipos de recursos aplicables</h3>
+          <ul>
+            <li><strong>Imágenes:</strong> Gráficos vectoriales escalables (SVG / Vector Drawables) para iconos sin pérdida de calidad, y mapas de bits comprimidos (WebP, PNG, JPEG) para fotografías.</li>
+            <li><strong>Audio:</strong> Efectos cortos de interfaz (OGG, WAV) y pistas o streaming musical (AAC, MP3).</li>
+            <li><strong>Video:</strong> Contenedores MP4 / WebM con códecs eficientes por hardware como H.264, H.265 (HEVC) o AV1.</li>
+            <li><strong>Animaciones y elementos dinámicos:</strong> Transiciones de propiedades, vectores animados con <strong>Lottie</strong> (JSON) o motores gráficos OpenGL / Vulkan.</li>
+          </ul>
+
+          <h3>Estructura del proyecto y componentes de software</h3>
+          <p>En <strong>Android</strong> los activos se organizan en <code>res/drawable/</code> (imágenes/vectores), <code>res/raw/</code> (audio/video sin compresión) y <code>assets/</code>. En <strong>iOS</strong> se gestionan mediante <code>Assets.xcassets</code> con escalas <code>@2x</code> y <code>@3x</code>.</p>
+          <p>Los principales componentes de software para reproducirlos son <strong>ExoPlayer / Media3</strong> (Android), <strong>AVFoundation / AVPlayer</strong> (iOS), <strong>SoundPool</strong> para efectos rápidos y librerías como <strong>Coil</strong> o <strong>Glide</strong> para caché asíncrona de imágenes.</p>
+        `,
+        noteTitle: "🎨 Dato de rendimiento",
+        noteText: "El formato WebP reduce hasta un 30% el peso de las imágenes frente a PNG y JPEG manteniendo la misma calidad visual y transparencia.",
+        keyPoints: [
+          "Usa vectores (SVG/VectorDrawable) para iconos y evita múltiples copias.",
+          "ExoPlayer y AVPlayer soportan streaming adaptativo (HLS/DASH).",
+          "Carga imágenes pesadas de forma asíncrona con caché en memoria."
+        ],
+        quiz: {
+          q: "¿Dónde se guardan los iconos y gráficos vectoriales en un proyecto Android estándar?",
+          options: [
+            "En la carpeta res/drawable/",
+            "En la carpeta AndroidManifest/"
+          ],
+          answer: 0
+        }
+      },
+      {
+        num: "05",
+        shortTitle: "Servicios y nube",
+        title: "Servicios, notificaciones y cómputo en la nube",
+        tag: "Tema 5 · Ejecución y Cloud",
+        html: `
+          <h3>Definición y tareas en segundo plano</h3>
+          <p>Un <strong>Servicio</strong> es un componente que ejecuta operaciones de larga duración sin interfaz visual. Las <strong>tareas en segundo plano</strong> permiten sincronizar datos, subir archivos o procesar información cuando el usuario no está interactuando directamente con la app, respetando las restricciones de ahorro de energía del sistema.</p>
+
+          <h3>Tratamiento de notificaciones</h3>
+          <p>Las notificaciones informan eventos relevantes fuera de la interfaz de la app. Existen <strong>notificaciones locales</strong> (programadas por el propio dispositivo) y <strong>notificaciones Push</strong> (enviadas desde un servidor remoto mediante un token de registro).</p>
+
+          <h3>Proceso de implementación</h3>
+          <ul>
+            <li><strong>Proveedores de contenido (Content Providers):</strong> Exponen datos estructurados entre aplicaciones de forma segura mediante URIs (ej. acceso a contactos o galería).</li>
+            <li><strong>Tareas en segundo plano:</strong> Uso de <strong>WorkManager</strong> (Android) o <strong>BGTaskScheduler</strong> (iOS) para programar trabajos diferibles garantizados.</li>
+            <li><strong>Notificaciones Push:</strong> Crear un canal de notificación (Android 8+), solicitar permiso explícito al usuario y recibir mensajes vía <strong>Firebase Cloud Messaging (FCM)</strong> o <strong>APNs</strong>.</li>
+          </ul>
+
+          <h3>Servicios de cómputo en la nube</h3>
+          <p>Plataformas como <strong>Firebase</strong>, <strong>AWS Amplify</strong> y <strong>Supabase</strong> proveen infraestructura backend lista para móviles: autenticación gestionada, bases de datos en tiempo real, almacenamiento de archivos y funciones serverless.</p>
+        `,
+        noteTitle: "☁️ Regla moderna en móviles",
+        noteText: "Desde Android 13 y en iOS, las apps deben pedir permiso explícito en tiempo de ejecución antes de poder mostrar cualquier notificación al usuario.",
+        keyPoints: [
+          "WorkManager garantiza la ejecución de tareas aunque se reinicie el teléfono.",
+          "Content Providers usan URIs (content://...) para compartir datos con seguridad.",
+          "Firebase y AWS Amplify aceleran el backend sin administrar servidores físicos."
+        ],
+        quiz: {
+          q: "¿Cuál es la herramienta recomendada en Android para tareas en segundo plano garantizadas?",
+          options: [
+            "WorkManager",
+            "ToastManager"
+          ],
+          answer: 0
+        }
+      },
+      {
+        num: "06",
+        shortTitle: "Librerías y toolkits",
+        title: "Librerías y toolkits para desarrollo móvil",
+        tag: "Tema 6 · Ecosistema de UI",
+        html: `
+          <h3>Diferencia entre Librería y Toolkit</h3>
+          <ul>
+            <li><strong>Librería:</strong> Colección de funciones o clases enfocadas en resolver una tarea específica (ej. redes, imágenes o cifrado), donde el desarrollador mantiene el control del flujo de la app.</li>
+            <li><strong>Toolkit (SDK / UI Toolkit):</strong> Conjunto integral de herramientas, motores de renderizado, componentes visuales y utilidades que definen cómo se construye y estructura toda la interfaz y ciclo de vida de la aplicación.</li>
+          </ul>
+
+          <h3>Librerías especializadas</h3>
+          <ul>
+            <li><strong>Redes y APIs:</strong> Retrofit, OkHttp, Ktor, Alamofire.</li>
+            <li><strong>Imágenes y caché:</strong> Glide, Coil, Kingfisher.</li>
+            <li><strong>Inyección de dependencias y asincronía:</strong> Hilt/Dagger, Coroutines, RxSwift.</li>
+          </ul>
+
+          <h3>Comparativa de Toolkits móviles</h3>
+          <table class="simple-table">
+            <thead>
+              <tr>
+                <th>Toolkit</th>
+                <th>Enfoque</th>
+                <th>Lenguaje</th>
+                <th>Característica principal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Jetpack Compose</strong></td>
+                <td>Nativo Android</td>
+                <td>Kotlin</td>
+                <td>UI declarativa moderna totalmente integrada con Android.</td>
+              </tr>
+              <tr>
+                <td><strong>SwiftUI</strong></td>
+                <td>Nativo iOS</td>
+                <td>Swift</td>
+                <td>UI declarativa nativa con vista previa en tiempo real.</td>
+              </tr>
+              <tr>
+                <td><strong>Flutter</strong></td>
+                <td>Multiplataforma</td>
+                <td>Dart</td>
+                <td>Renderiza sus propios widgets con motor gráfico propio a 60/120 fps.</td>
+              </tr>
+              <tr>
+                <td><strong>React Native</strong></td>
+                <td>Multiplataforma</td>
+                <td>JS / TS</td>
+                <td>Mapea componentes hacia vistas nativas del sistema operativo.</td>
+              </tr>
+            </tbody>
+          </table>
+        `,
+        noteTitle: "⚡ Tendencia actual",
+        noteText: "Tanto Android (Jetpack Compose) como iOS (SwiftUI) abandonaron las interfaces XML/Storyboard en favor del paradigma de UI declarativa.",
+        keyPoints: [
+          "Tú llamas a una librería; un framework/toolkit estructura tu aplicación.",
+          "Flutter dibuja cada píxel con su propio motor gráfico (Impeller/Skia).",
+          "Kotlin Multiplatform permite compartir lógica de negocio con UI nativa."
+        ],
+        quiz: {
+          q: "¿Qué diferencia principalmente a un Toolkit como Flutter o Jetpack Compose de una librería como Retrofit?",
+          options: [
+            "El toolkit provee el sistema completo para construir y renderizar la interfaz de la app.",
+            "Una librería solo funciona sin conexión a internet."
+          ],
+          answer: 0
+        }
+      },
+      {
+        num: "07",
+        shortTitle: "Depuración y seguridad",
+        title: "Depuración, seguridad y referencias",
+        tag: "Tema 7 · Calidad y protección",
+        html: `
+          <h3>¿Qué es la depuración y la seguridad móvil?</h3>
+          <p>La <strong>depuración (debugging)</strong> es el proceso sistemático de localizar, analizar y corregir fallos lógicos, fugas de memoria o cuellos de botella. La <strong>seguridad móvil</strong> consiste en proteger los datos del usuario, el código fuente y las comunicaciones contra ingeniería inversa o interceptación.</p>
+
+          <h3>Herramientas de depuración en el entorno móvil</h3>
+          <ul>
+            <li><strong>Breakpoints y Step-by-Step:</strong> Inspección de variables y pila de llamadas en tiempo real dentro de Android Studio y Xcode.</li>
+            <li><strong>Logcat / Consola de diagnóstico:</strong> Registro estructurado de eventos y excepciones por niveles (Debug, Warning, Error).</li>
+            <li><strong>Profilers (CPU, Memoria, Red y Energía):</strong> Detectan fugas de memoria (<em>memory leaks</em>), consumo excesivo de batería e inspeccionan tráfico HTTP.</li>
+            <li><strong>Layout Inspector / View Debugger:</strong> Visualiza la jerarquía de vistas en 3D para corregir solapamientos de interfaz.</li>
+          </ul>
+
+          <h3>Buenas prácticas de seguridad</h3>
+          <p>Aplicar <strong>ofuscación de código</strong> (R8 / ProGuard), fijado de certificados (<strong>SSL Pinning</strong>) contra ataques Man-in-the-Middle, principio de mínimos permisos y almacenamiento cifrado.</p>
+
+          <h3>Referencias bibliográficas</h3>
+          <ul>
+            <li>Android Developers Documentation. (2026). <em>App Architecture, Sensors, WorkManager &amp; Security Guides</em>. Google.</li>
+            <li>Apple Developer Documentation. (2026). <em>SwiftUI, CoreData, AVFoundation &amp; Security Frameworks</em>. Apple Inc.</li>
+            <li>Chacon, S., &amp; Straub, B. (2014). <em>Pro Git</em> (2nd ed.). Apress.</li>
+            <li>OWASP Foundation. (2025). <em>OWASP Mobile Application Security Verification Standard (MASVS)</em>.</li>
+          </ul>
+        `,
+        noteTitle: "🛡️ Consejo clave de producción",
+        noteText: "Activa siempre R8/ProGuard en las compilaciones de producción: reduce el tamaño del APK/AAB y dificulta que terceros descompilen tu código.",
+        keyPoints: [
+          "El Memory Profiler ayuda a detectar fugas de memoria antes de publicar.",
+          "SSL Pinning valida que el servidor use exactamente el certificado esperado.",
+          "Nunca dejes credenciales o llaves API escritas directamente en el código."
+        ],
+        quiz: {
+          q: "¿Para qué sirve el Memory Profiler en Android Studio o Xcode?",
+          options: [
+            "Para detectar fugas de memoria y analizar el uso de RAM en tiempo real.",
+            "Para diseñar iconos vectoriales."
+          ],
+          answer: 0
+        }
+      }
+    ];
+
+    let currentIndex = 0;
+
+    const navList = document.getElementById("navList");
+    const topicContainer = document.getElementById("topicContainer");
+    const funFactBox = document.getElementById("funFactBox");
+    const keyPointsBox = document.getElementById("keyPointsBox");
+    const miniQuizBox = document.getElementById("miniQuizBox");
+    const headerStep = document.getElementById("headerStep");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const themeToggle = document.getElementById("themeToggle");
+
+    function renderNavigation() {
+      navList.innerHTML = "";
+      topics.forEach((t, idx) => {
+        const li = document.createElement("li");
+        const btn = document.createElement("button");
+        btn.className = "nav-item-btn" + (idx === currentIndex ? " active" : "");
+        btn.innerHTML = `<span class="nav-num">${t.num}.</span><span>${t.shortTitle}</span>`;
+        btn.onclick = () => {
+          currentIndex = idx;
+          renderAll();
+        };
+        li.appendChild(btn);
+        navList.appendChild(li);
+      });
+    }
+
+    function renderTopic() {
+      const t = topics[currentIndex];
+      headerStep.textContent = `${currentIndex + 1} / ${topics.length}`;
+
+      topicContainer.innerHTML = `
+        <div class="topic-header">
+          <span class="topic-tag">${t.tag}</span>
+          <h2>${t.num}. ${t.title}</h2>
+        </div>
+        <div class="topic-content">
+          ${t.html}
+        </div>
+      `;
+
+      funFactBox.innerHTML = `
+        <h4>${t.noteTitle}</h4>
+        <p>${t.noteText}</p>
+      `;
+
+      keyPointsBox.innerHTML = `
+        <h4>Puntos clave</h4>
+        <ul>
+          ${t.keyPoints.map(pt => `<li>${pt}</li>`).join("")}
+        </ul>
+      `;
+
+      miniQuizBox.innerHTML = `
+        <h4>Repaso rápido</h4>
+        <p>${t.quiz.q}</p>
+        <div id="quizOptions"></div>
+      `;
+
+      const quizOptionsDiv = document.getElementById("quizOptions");
+      t.quiz.options.forEach((optText, optIdx) => {
+        const optBtn = document.createElement("button");
+        optBtn.className = "quiz-opt";
+        optBtn.textContent = optText;
+        optBtn.onclick = () => {
+          const allOpts = quizOptionsDiv.querySelectorAll(".quiz-opt");
+          allOpts.forEach((b, i) => {
+            b.classList.remove("correct", "wrong");
+            if (i === t.quiz.answer) b.classList.add("correct");
+            else if (i === optIdx) b.classList.add("wrong");
+          });
+        };
+        quizOptionsDiv.appendChild(optBtn);
+      });
+
+      prevBtn.disabled = currentIndex === 0;
+      nextBtn.disabled = currentIndex === topics.length - 1;
+    }
+
+    function renderAll() {
+      renderNavigation();
+      renderTopic();
+    }
+
+    prevBtn.onclick = () => {
+      if (currentIndex > 0) {
+        currentIndex--;
+        renderAll();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    };
+
+    nextBtn.onclick = () => {
+      if (currentIndex < topics.length - 1) {
+        currentIndex++;
+        renderAll();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    };
+
+    themeToggle.onclick = () => {
+      document.body.classList.toggle("dark");
+    };
+
+    renderAll();
+  </script>
+</body>
+</html>
